@@ -1,0 +1,860 @@
+/* ==========================================================================
+   Refiqo — Onboarding Screens
+   Shared stylesheet (style.css)
+   Pure HTML + CSS. No frameworks, no JS.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. THEME TOKENS
+   -------------------------------------------------------------------------- */
+:root {
+  /* Backgrounds */
+  --bg-main: #070a14;
+  --bg-deep: #05070f;
+  --card-bg: #0e1322;
+  --card-bg-2: #11172a;
+  --field-bg: #0a0f1c;
+
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* Text */
+  --text-main: #eef0f8;
+  --text-muted: #8a90a8;
+  --text-faint: #5b6178;
+
+  /* Brand accents */
+  --purple: #7c5cff;
+  --purple-light: #a98bff;
+  --purple-deep: #5b3df0;
+  --blue: #4f7cff;
+  --green: #2dd4a0;
+  --green-deep: #18a87e;
+  --danger: #ff5c7c;
+
+  /* Gradients */
+  --grad-purple: linear-gradient(135deg, #7c5cff 0%, #5b3df0 100%);
+  --grad-purple-blue: linear-gradient(135deg, #8b5cff 0%, #4f7cff 100%);
+
+  /* Effects */
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
+  --shadow-card: 0 18px 50px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 10px 30px rgba(124, 92, 255, 0.45);
+}
+
+/* --------------------------------------------------------------------------
+   2. BASE / RESET
+   -------------------------------------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Segoe UI", Inter, system-ui, -apple-system, Roboto, sans-serif;
+  color: var(--text-main);
+  background: var(--bg-main);
+  background-image:
+    radial-gradient(900px 500px at 15% -8%, rgba(124, 92, 255, 0.22), transparent 60%),
+    radial-gradient(900px 600px at 90% 0%, rgba(79, 124, 255, 0.16), transparent 55%),
+    linear-gradient(180deg, #0a0e1d 0%, var(--bg-deep) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* --------------------------------------------------------------------------
+   3. PAGE LAYOUT
+   -------------------------------------------------------------------------- */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+}
+
+/* --------------------------------------------------------------------------
+   4. PAGE HEADER + STEP PROGRESS BAR
+   -------------------------------------------------------------------------- */
+.page-header {
+  margin-bottom: 36px;
+}
+
+.page-header .step-meta {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--purple-light);
+  margin-bottom: 8px;
+}
+
+.page-header h1 {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  line-height: 1.1;
+}
+
+.page-header h1 .accent {
+  background: var(--grad-purple-blue);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.page-header .subtitle {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+/* Progress bar */
+.progress {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin: 30px 0 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 28px;
+  box-shadow: var(--shadow-card);
+}
+
+.progress .node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  width: 110px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.progress .connector {
+  flex: 1 1 auto;
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  margin: 17px 4px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.progress .connector.done {
+  background: var(--grad-purple);
+}
+
+.progress .circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  border: 2px solid var(--border-strong);
+  background: var(--field-bg);
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.progress .node.done .circle {
+  background: var(--grad-purple);
+  border-color: transparent;
+  color: #fff;
+}
+
+.progress .node.active .circle {
+  background: var(--grad-purple);
+  border-color: var(--purple-light);
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+}
+
+.progress .node .name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.progress .node.active .name,
+.progress .node.done .name {
+  color: var(--text-main);
+}
+
+/* --------------------------------------------------------------------------
+   5. SECTION CARD (glassmorphism)
+   -------------------------------------------------------------------------- */
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(14px);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.card-head .ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: rgba(124, 92, 255, 0.16);
+  border: 1px solid rgba(124, 92, 255, 0.35);
+  flex: 0 0 auto;
+}
+
+.card-head .ico.green {
+  background: rgba(45, 212, 160, 0.14);
+  border-color: rgba(45, 212, 160, 0.35);
+}
+
+.card-head .titles h2 {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.card-head .titles p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.card-head .badge {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--field-bg);
+}
+
+/* --------------------------------------------------------------------------
+   6. FORM FIELDS
+   -------------------------------------------------------------------------- */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.grid-2 .full,
+.field.full {
+  grid-column: 1 / -1;
+}
+
+.field {
+  margin-bottom: 18px;
+}
+
+.field:last-child { margin-bottom: 0; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.field label .opt {
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  background: var(--field-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 14px;
+  font-family: inherit;
+  padding: 13px 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input::placeholder,
+.textarea::placeholder { color: var(--text-faint); }
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.18);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a90a8' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+/* Input with leading icon / prefix */
+.input-icon {
+  position: relative;
+}
+.input-icon .lead {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: var(--text-faint);
+}
+.input-icon .input { padding-left: 38px; }
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+.input-group .code {
+  flex: 0 0 84px;
+}
+
+/* --------------------------------------------------------------------------
+   7. TOGGLE SWITCH
+   -------------------------------------------------------------------------- */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--field-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.toggle-row .t-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.toggle-row .t-text span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.switch {
+  margin-left: auto;
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background: #232a40;
+  border: 1px solid var(--border);
+  position: relative;
+  flex: 0 0 auto;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  top: 2px;
+  left: 2px;
+  transition: left 0.18s;
+}
+.switch.on { background: var(--grad-purple); border-color: transparent; }
+.switch.on::after { left: 22px; }
+
+/* --------------------------------------------------------------------------
+   8. CHIPS
+   -------------------------------------------------------------------------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--field-bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:hover { border-color: var(--border-strong); }
+.chip.selected {
+  background: var(--grad-purple);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+}
+.chip .x {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-left: 2px;
+}
+.chip.add {
+  border-style: dashed;
+  color: var(--purple-light);
+  border-color: rgba(124, 92, 255, 0.5);
+}
+
+.section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 22px 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-label .link {
+  color: var(--purple-light);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   9. EMPTY STATE
+   -------------------------------------------------------------------------- */
+.empty {
+  text-align: center;
+  padding: 34px 20px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--field-bg);
+  color: var(--text-muted);
+}
+.empty .e-ico {
+  font-size: 26px;
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+.empty strong { color: var(--text-main); font-weight: 600; display: block; }
+.empty span { font-size: 13px; }
+
+/* --------------------------------------------------------------------------
+   10. SEARCH RESULTS LIST
+   -------------------------------------------------------------------------- */
+.result-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--field-bg);
+  overflow: hidden;
+}
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.result-item:last-child { border-bottom: none; }
+.result-item:hover { background: rgba(255, 255, 255, 0.03); }
+.result-item .r-ico {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(124, 92, 255, 0.14);
+  font-size: 14px;
+  flex: 0 0 auto;
+}
+.result-item .r-name { font-size: 14px; font-weight: 500; }
+.result-item .r-plus {
+  margin-left: auto;
+  color: var(--purple-light);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   11. UPLOAD CARD
+   -------------------------------------------------------------------------- */
+.upload {
+  border: 2px dashed rgba(124, 92, 255, 0.45);
+  border-radius: var(--radius);
+  background: rgba(124, 92, 255, 0.05);
+  padding: 40px 20px;
+  text-align: center;
+}
+.upload .u-ico {
+  width: 60px; height: 60px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  background: var(--grad-purple);
+  box-shadow: var(--shadow-glow);
+}
+.upload h3 { font-size: 17px; font-weight: 700; }
+.upload p { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+.upload .hint { font-size: 12px; color: var(--text-faint); margin-top: 10px; }
+
+/* Uploaded file row */
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 16px;
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--field-bg);
+}
+.file-row .f-ico {
+  width: 40px; height: 40px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 92, 124, 0.16);
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+.file-row .f-info strong { display: block; font-size: 14px; font-weight: 600; }
+.file-row .f-info span { font-size: 12px; color: var(--text-muted); }
+.file-row .f-check {
+  margin-left: auto;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #04150f;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800;
+}
+
+/* Tips list */
+.tips {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--field-bg);
+  border: 1px solid var(--border);
+}
+.tips h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--purple-light); }
+.tips li {
+  list-style: none;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding-left: 22px;
+  position: relative;
+  margin-bottom: 7px;
+}
+.tips li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   12. PORTFOLIO TYPE CARDS
+   -------------------------------------------------------------------------- */
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.type-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--field-bg);
+  padding: 20px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.type-card:hover { border-color: var(--border-strong); }
+.type-card.selected {
+  border-color: var(--purple);
+  background: rgba(124, 92, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
+}
+.type-card .tc-ico {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+.type-card .tc-name { font-size: 13px; font-weight: 600; }
+
+/* --------------------------------------------------------------------------
+   13. REVIEW ROWS
+   -------------------------------------------------------------------------- */
+.review {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.review-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--field-bg);
+}
+.review-row:last-child { border-bottom: none; }
+.review-row .rv-ico {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(124, 92, 255, 0.14);
+  font-size: 16px;
+  flex: 0 0 auto;
+}
+.review-row .rv-info { min-width: 0; }
+.review-row .rv-info .rv-label { font-size: 12px; color: var(--text-muted); }
+.review-row .rv-info .rv-value {
+  font-size: 14px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.review-row .rv-action {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--purple-light);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   14. SELECT OPTIONS (radio / checkbox lists)
+   -------------------------------------------------------------------------- */
+.option-list { display: flex; flex-direction: column; gap: 12px; }
+.option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--field-bg);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.option:hover { border-color: var(--border-strong); }
+.option .o-ico {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(124, 92, 255, 0.14);
+  font-size: 17px;
+  flex: 0 0 auto;
+}
+.option .o-text { flex: 1; }
+.option .o-text strong { display: block; font-size: 15px; font-weight: 600; }
+.option .o-text span { font-size: 12px; color: var(--text-muted); }
+
+/* radio / check marker on the right */
+.marker {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  flex: 0 0 auto;
+  position: relative;
+}
+.marker.box { border-radius: 7px; }
+
+.option.selected { border-color: var(--purple); background: rgba(124, 92, 255, 0.08); }
+.option.selected .marker {
+  border-color: var(--purple);
+  background: var(--grad-purple);
+}
+.option.selected .marker::after {
+  content: "";
+  position: absolute;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.option.selected .marker.box::after {
+  content: "✓";
+  width: auto; height: auto;
+  background: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* green success variant (Availability "Available Now") */
+.option.selected.success { border-color: var(--green); background: rgba(45, 212, 160, 0.08); }
+.option.selected.success .marker { border-color: var(--green); background: var(--green); }
+.option.selected.success .o-ico {
+  background: rgba(45, 212, 160, 0.18);
+}
+
+/* --------------------------------------------------------------------------
+   15. SUMMARY TABLE
+   -------------------------------------------------------------------------- */
+.summary {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--field-bg);
+  font-size: 14px;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row .s-key { color: var(--text-muted); }
+.summary-row .s-val { font-weight: 600; color: var(--green); }
+
+/* --------------------------------------------------------------------------
+   16. "WHY" INFO CARD + FEATURE GRID
+   -------------------------------------------------------------------------- */
+.why {
+  border: 1px solid rgba(124, 92, 255, 0.3);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.12), rgba(79, 124, 255, 0.06));
+  padding: 24px 26px;
+  margin-bottom: 24px;
+}
+.why .why-head {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.why .why-head .ico {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: rgba(124, 92, 255, 0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.why .why-head h3 { font-size: 17px; font-weight: 700; }
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.feature {
+  text-align: center;
+}
+.feature .fe-ico {
+  width: 46px; height: 46px;
+  margin: 0 auto 10px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  background: rgba(124, 92, 255, 0.16);
+  border: 1px solid rgba(124, 92, 255, 0.3);
+}
+.feature strong { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.feature span { font-size: 12px; color: var(--text-muted); line-height: 1.45; }
+
+/* --------------------------------------------------------------------------
+   17. PRIMARY BUTTON
+   -------------------------------------------------------------------------- */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 17px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--grad-purple-blue);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  transition: transform 0.12s, box-shadow 0.12s;
+  margin-top: 8px;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 36px rgba(124, 92, 255, 0.55); }
+.btn-primary .arrow { font-size: 18px; }
+
+.btn-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 12px;
+}
+
+/* small inline add button */
+.btn-add {
+  padding: 13px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--grad-purple);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   18. RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .page { padding: 36px 22px 64px; }
+  .page-header h1 { font-size: 30px; }
+  .type-grid { grid-template-columns: repeat(2, 1fr); }
+  .feature-grid { grid-template-columns: repeat(2, 1fr); }
+  .progress { padding: 18px 16px; overflow-x: auto; }
+  .progress .node { width: 84px; }
+  .progress .node .name { font-size: 11px; }
+}
+
+@media (max-width: 600px) {
+  .page { padding: 26px 16px 52px; }
+  .page-header h1 { font-size: 24px; letter-spacing: 0.5px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .card { padding: 20px 18px; }
+  .type-grid { grid-template-columns: 1fr 1fr; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .progress .node .name { display: none; }
+  .progress .connector { margin-top: 17px; }
+  .input-group { flex-wrap: wrap; }
+}

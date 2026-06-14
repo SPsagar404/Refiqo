@@ -1,0 +1,59 @@
+name: backend-ci
+
+on:
+  push:
+    paths: ['backend/**']
+  pull_request:
+    paths: ['backend/**']
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  static:
+    name: lint · typecheck · build · unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run test:cov
+
+  e2e:
+    name: e2e (supertest + postgres)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: refiqo
+          POSTGRES_PASSWORD: refiqo
+          POSTGRES_DB: refiqo
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U refiqo -d refiqo"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://refiqo:refiqo@localhost:5432/refiqo?schema=public
+      JWT_ACCESS_SECRET: ci_access_secret_value
+      JWT_REFRESH_SECRET: ci_refresh_secret_value
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npx ts-node prisma/seed.ts
+      - run: npm run test:e2e

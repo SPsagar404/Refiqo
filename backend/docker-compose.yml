@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: refiqo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: refiqo
+      POSTGRES_PASSWORD: refiqo
+      POSTGRES_DB: refiqo
+    ports:
+      - '5432:5432'
+    volumes:
+      - refiqo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U refiqo -d refiqo']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  refiqo_pgdata:

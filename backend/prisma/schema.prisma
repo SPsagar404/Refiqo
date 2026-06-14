@@ -1,0 +1,616 @@
+// Refiqo — Prisma schema (canonical data model)
+// PostgreSQL · UUID primary keys · createdAt/updatedAt everywhere · soft-delete via deletedAt where relevant.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  USER
+  REFERRER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+  SUSPENDED
+}
+
+enum OAuthProvider {
+  GOOGLE
+  LINKEDIN
+  GITHUB
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+}
+
+enum ReferralStatus {
+  PENDING
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+}
+
+enum ReferralCategory {
+  FULL_TIME
+  INTERNSHIP
+  CONTRACT
+  PART_TIME
+  FREELANCE
+  OTHER
+}
+
+enum AvailabilityStatus {
+  AVAILABLE_NOW
+  AVAILABLE_1_2_WEEKS
+  LIMITED
+  NOT_AVAILABLE
+}
+
+enum ResponseTime {
+  WITHIN_24H
+  WITHIN_2_3_DAYS
+  WITHIN_A_WEEK
+  MORE_THAN_A_WEEK
+}
+
+enum ContactMethod {
+  IN_APP_CHAT
+  EMAIL
+  LINKEDIN
+  PHONE_CALL
+  VIDEO_CALL
+}
+
+enum MessageType {
+  TEXT
+  FILE
+  IMAGE
+}
+
+enum PortfolioType {
+  WEBSITE
+  LINKEDIN
+  GITHUB
+  OTHER
+}
+
+enum NotificationType {
+  REFERRAL_ACCEPTED
+  REFERRAL_REJECTED
+  NEW_MESSAGE
+  REFERRAL_REQUEST_RECEIVED
+  REFERRAL_UNDER_REVIEW
+  REMINDER
+  MILESTONE
+  WELCOME
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum WorkMode {
+  ONSITE
+  REMOTE
+  HYBRID
+}
+
+enum DevicePlatform {
+  ANDROID
+  IOS
+  WEB
+}
+
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum AnnouncementAudience {
+  ALL
+  SEEKERS
+  REFERRERS
+}
+
+// ─── Lookups ───────────────────────────────────────────────────────────────
+
+model Company {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  logoUrl   String?
+  domain    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  referrers   ReferrerProfile[]
+  jobs        Job[]
+  experiences Experience[]
+}
+
+model Location {
+  id        String   @id @default(uuid()) @db.Uuid
+  city      String
+  country   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+  jobs  Job[]
+
+  @@unique([city, country])
+}
+
+model Skill {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  isPopular Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users UserSkill[]
+}
+
+// ─── Identity / account ──────────────────────────────────────────────────────
+
+model User {
+  id                 String     @id @default(uuid()) @db.Uuid
+  email              String     @unique
+  passwordHash       String?
+  fullName           String
+  jobTitle           String?
+  experienceYears    Int?
+  companyId          String?    @db.Uuid
+  locationId         String?    @db.Uuid
+  phone              String?
+  linkedinUrl        String?
+  portfolioUrl       String?
+  about              String?
+  lookingFor         String?
+  preferredWorkMode  WorkMode?
+  willingToRelocate  Boolean    @default(false)
+  avatarUrl          String?
+  isVerified         Boolean    @default(false)
+  companyVerified    Boolean    @default(false)
+  onboardingStep     Int        @default(0)
+  onboardingComplete Boolean    @default(false)
+  role               UserRole   @default(USER)
+  status             UserStatus @default(ACTIVE)
+  lastSeenAt         DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  deletedAt          DateTime?
+
+  company  Company?  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  location Location? @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  referrerProfile      ReferrerProfile?
+  referralPreference   ReferralPreference?
+  availabilitySetting  AvailabilitySetting?
+  notificationPrefs    NotificationPreference?
+  skills               UserSkill[]
+  experiences          Experience[]
+  educations           Education[]
+  resumes              Resume[]
+  portfolioLinks       PortfolioLink[]
+  devices              Device[]
+  sessions             Session[]
+  authProviders        AuthProvider[]
+  notifications        Notification[]
+
+  referralsSent     ReferralRequest[] @relation("SeekerRequests")
+  referralsReceived ReferralRequest[] @relation("ReferrerRequests")
+
+  conversationsCreated Conversation[]            @relation("ConversationCreator")
+  conversationMembers  ConversationParticipant[]
+  messagesSent         Message[]
+
+  savedReferrers       SavedReferrer[]           @relation("UserSavedReferrers")
+  savedBySeekers       SavedReferrer[]           @relation("ReferrerIsSaved")
+  savedJobs            SavedJob[]
+
+  @@index([companyId])
+  @@index([locationId])
+  @@index([role, status])
+}
+
+model AuthProvider {
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String        @db.Uuid
+  provider       OAuthProvider
+  providerUserId String
+  createdAt      DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+}
+
+model Session {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  refreshTokenHash String
+  userAgent        String?
+  ip               String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ReferrerProfile {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @unique @db.Uuid
+  companyId          String?            @db.Uuid
+  canRefer           Boolean            @default(true)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  referralsGiven     Int                @default(0)
+  responseRatePct    Int                @default(0)
+  avgResponseHours   Int?
+  ratingAvg          Float              @default(0)
+  ratingCount        Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@index([companyId])
+  @@index([verificationStatus])
+}
+
+// ─── Profile detail ──────────────────────────────────────────────────────────
+
+model UserSkill {
+  id          String  @id @default(uuid()) @db.Uuid
+  userId      String  @db.Uuid
+  skillId     String  @db.Uuid
+  proficiency Int?
+  createdAt   DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([skillId])
+}
+
+model Experience {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  companyId      String?   @db.Uuid
+  companyName    String?
+  title          String
+  employmentType String?
+  location       String?
+  startDate      DateTime
+  endDate        DateTime?
+  current        Boolean   @default(false)
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+}
+
+model Education {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @db.Uuid
+  degree            String
+  fieldOfStudy      String?
+  institution       String
+  graduationYear    Int?
+  currentlyPursuing Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Resume {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  fileKey   String
+  fileName  String
+  mimeType  String
+  sizeBytes Int
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referralRequests ReferralRequest[]
+
+  @@index([userId])
+}
+
+model PortfolioLink {
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @db.Uuid
+  type        PortfolioType @default(WEBSITE)
+  url         String
+  title       String?
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ReferralPreference {
+  id                  String             @id @default(uuid()) @db.Uuid
+  userId              String             @unique @db.Uuid
+  categories          ReferralCategory[]
+  roles               String[]
+  preferredCompanies  String[]
+  preferredLocations  String[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AvailabilitySetting {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @unique @db.Uuid
+  availabilityStatus AvailabilityStatus @default(AVAILABLE_NOW)
+  responseTime       ResponseTime       @default(WITHIN_24H)
+  contactMethods     ContactMethod[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NotificationPreference {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @db.Uuid
+  // per-type toggles
+  referralUpdates Boolean @default(true)
+  newMessages     Boolean @default(true)
+  reminders       Boolean @default(true)
+  milestones      Boolean @default(true)
+  marketing       Boolean @default(false)
+  // privacy
+  profilePublic   Boolean @default(true)
+  showEmail       Boolean @default(false)
+  showPhone       Boolean @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Device {
+  id        String         @id @default(uuid()) @db.Uuid
+  userId    String         @db.Uuid
+  fcmToken  String         @unique
+  platform  DevicePlatform @default(ANDROID)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─── Jobs & referrals ──────────────────────────────────────────────────────
+
+model Job {
+  id             String    @id @default(uuid()) @db.Uuid
+  title          String
+  companyId      String?   @db.Uuid
+  locationId     String?   @db.Uuid
+  workMode       WorkMode?
+  description    String?
+  applyUrl       String?
+  status         JobStatus @default(DRAFT)
+  postedByAdminId String?  @db.Uuid
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  company         Company?          @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  location        Location?         @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  postedByAdmin   AdminUser?        @relation(fields: [postedByAdminId], references: [id], onDelete: SetNull)
+  referralRequests ReferralRequest[]
+  savedByUsers     SavedJob[]
+
+  @@index([status])
+  @@index([companyId])
+}
+
+model ReferralRequest {
+  id              String         @id @default(uuid()) @db.Uuid
+  seekerId        String         @db.Uuid
+  referrerId      String         @db.Uuid
+  jobId           String?        @db.Uuid
+  jobRole         String
+  jobLink         String?
+  message         String
+  note            String?
+  resumeId        String?        @db.Uuid
+  status          ReferralStatus @default(PENDING)
+  rejectionReason String?
+  statusHistory   Json           @default("[]")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  seeker   User    @relation("SeekerRequests", fields: [seekerId], references: [id], onDelete: Cascade)
+  referrer User    @relation("ReferrerRequests", fields: [referrerId], references: [id], onDelete: Cascade)
+  job      Job?    @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  resume   Resume? @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+
+  @@index([referrerId, status])
+  @@index([seekerId, status])
+}
+
+model SavedReferrer {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  referrerId String   @db.Uuid
+  createdAt  DateTime @default(now())
+
+  user     User @relation("UserSavedReferrers", fields: [userId], references: [id], onDelete: Cascade)
+  referrer User @relation("ReferrerIsSaved", fields: [referrerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, referrerId])
+  @@index([userId])
+}
+
+model SavedJob {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  jobId     String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId])
+}
+
+// ─── Chat ────────────────────────────────────────────────────────────────────
+
+model Conversation {
+  id            String   @id @default(uuid()) @db.Uuid
+  createdById   String   @db.Uuid
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  createdBy    User                      @relation("ConversationCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id             String    @id @default(uuid()) @db.Uuid
+  conversationId String    @db.Uuid
+  userId         String    @db.Uuid
+  lastReadAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String      @id @default(uuid()) @db.Uuid
+  conversationId String      @db.Uuid
+  senderId       String      @db.Uuid
+  body           String?
+  type           MessageType @default(TEXT)
+  deliveredAt    DateTime?
+  readAt         DateTime?
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  attachments  Attachment[]
+
+  @@index([conversationId, createdAt])
+}
+
+model Attachment {
+  id        String   @id @default(uuid()) @db.Uuid
+  messageId String   @db.Uuid
+  fileKey   String
+  fileName  String
+  mimeType  String
+  sizeBytes Int
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  type      NotificationType
+  title     String
+  body      String
+  data      Json             @default("{}")
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+}
+
+// ─── Admin / platform ──────────────────────────────────────────────────────
+
+model AdminUser {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(ADMIN)
+  permissions  String[]
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  jobs          Job[]
+  announcements Announcement[]
+}
+
+model PlatformSetting {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Announcement {
+  id               String               @id @default(uuid()) @db.Uuid
+  title            String
+  body             String
+  audience         AnnouncementAudience @default(ALL)
+  createdByAdminId String?              @db.Uuid
+  sentAt           DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  createdByAdmin AdminUser? @relation(fields: [createdByAdminId], references: [id], onDelete: SetNull)
+}

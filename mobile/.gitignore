@@ -1,0 +1,13 @@
+node_modules/
+.expo/
+dist/
+dist-web/
+dist-export/
+preview-shot.png
+ref-dashboard.png
+ref-design/
+web-build/
+*.log
+.DS_Store
+.env
+*.orig.*

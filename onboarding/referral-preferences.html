@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refiqo — Referral Preferences</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+
+    <!-- ============ PAGE HEADER ============ -->
+    <header class="page-header">
+      <div class="step-meta">STEP 4 OF 5 — TELL US WHAT KIND OF REFERRALS YOU'RE LOOKING FOR</div>
+      <h1>4. <span class="accent">REFERRAL PREFERENCES</span></h1>
+      <p class="subtitle">Set your preferences so we can match you with the right referrals.</p>
+
+      <!-- ============ STEP PROGRESS BAR ============ -->
+      <nav class="progress">
+        <div class="node done"><span class="circle">✓</span><span class="name">Basic Info</span></div>
+        <div class="connector done"></div>
+        <div class="node done"><span class="circle">✓</span><span class="name">Skills</span></div>
+        <div class="connector done"></div>
+        <div class="node done"><span class="circle">✓</span><span class="name">Resume</span></div>
+        <div class="connector done"></div>
+        <div class="node active"><span class="circle">4</span><span class="name">Preferences</span></div>
+        <div class="connector"></div>
+        <div class="node"><span class="circle">5</span><span class="name">Availability</span></div>
+      </nav>
+    </header>
+
+    <!-- ============ SECTION 1: REFERRAL CATEGORIES ============ -->
+    <section class="card">
+      <div class="card-head">
+        <div class="ico">🎯</div>
+        <div class="titles">
+          <h2>1. What kind of referrals are you looking for?</h2>
+          <p>Choose the categories that match your goals.</p>
+        </div>
+        <span class="badge">Select all that apply</span>
+      </div>
+
+      <div class="chips">
+        <span class="chip selected">💼 Full-time Jobs</span>
+        <span class="chip">🎓 Internships</span>
+        <span class="chip selected">📄 Contract Roles</span>
+        <span class="chip">⏱️ Part-time Jobs</span>
+        <span class="chip">🧩 Freelance Projects</span>
+        <span class="chip">✨ Other Opportunities</span>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 2: INTERESTED ROLES ============ -->
+    <section class="card">
+      <div class="card-head">
+        <div class="ico">🧑‍💻</div>
+        <div class="titles">
+          <h2>2. What roles are you most interested in?</h2>
+          <p>Add the roles or job titles you're looking for.</p>
+        </div>
+      </div>
+
+      <div class="section-label">Add Job Roles</div>
+      <div class="input-group">
+        <input class="input" type="text" placeholder="e.g. Backend Developer" />
+        <button class="btn-add">+ Add</button>
+      </div>
+
+      <div class="section-label">Suggested Roles</div>
+      <div class="chips">
+        <span class="chip">Backend Developer</span>
+        <span class="chip">Frontend Developer</span>
+        <span class="chip">Full Stack Developer</span>
+        <span class="chip">Data Analyst</span>
+        <span class="chip">DevOps Engineer</span>
+        <span class="chip">UI/UX Designer</span>
+        <span class="chip">Data Scientist</span>
+      </div>
+
+      <div class="section-label">
+        Your Selected Roles (3)
+        <span class="link">Clear All</span>
+      </div>
+      <div class="chips">
+        <span class="chip selected">Backend Developer <span class="x">✕</span></span>
+        <span class="chip selected">DevOps Engineer <span class="x">✕</span></span>
+        <span class="chip selected">Full Stack Developer <span class="x">✕</span></span>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 3: PREFERRED LOCATIONS OR COMPANIES ============ -->
+    <section class="card">
+      <div class="card-head">
+        <div class="ico">📍</div>
+        <div class="titles">
+          <h2>3. Any preferred locations or companies?</h2>
+          <p>Help referrers know where you'd like to work.</p>
+        </div>
+      </div>
+
+      <div class="section-label">Preferred Locations <span class="link">Optional</span></div>
+      <div class="input-group">
+        <input class="input" type="text" placeholder="Add a city or region" />
+        <button class="btn-add">+ Add</button>
+      </div>
+      <div class="chips" style="margin-top:14px;">
+        <span class="chip selected">Bengaluru, India <span class="x">✕</span></span>
+        <span class="chip selected">Remote <span class="x">✕</span></span>
+      </div>
+
+      <div class="section-label">Preferred Companies <span class="link">Optional</span></div>
+      <div class="input-group">
+        <input class="input" type="text" placeholder="Add a company name" />
+        <button class="btn-add">+ Add</button>
+      </div>
+      <div class="chips" style="margin-top:14px;">
+        <span class="chip selected">Google <span class="x">✕</span></span>
+        <span class="chip selected">Atlassian <span class="x">✕</span></span>
+        <span class="chip selected">Microsoft <span class="x">✕</span></span>
+      </div>
+    </section>
+
+    <!-- ============ WHY SET REFERRAL PREFERENCES ============ -->
+    <section class="why">
+      <div class="why-head">
+        <div class="ico">💡</div>
+        <h3>Why set referral preferences?</h3>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="fe-ico">🎯</div>
+          <strong>Better Matches</strong>
+          <span>We surface referrals that fit your goals.</span>
+        </div>
+        <div class="feature">
+          <div class="fe-ico">🔔</div>
+          <strong>Relevant Opportunities</strong>
+          <span>Get notified about roles you actually want.</span>
+        </div>
+        <div class="feature">
+          <div class="fe-ico">⏳</div>
+          <strong>Save Everyone's Time</strong>
+          <span>Referrers know exactly how to help you.</span>
+        </div>
+        <div class="feature">
+          <div class="fe-ico">🚀</div>
+          <strong>Faster Results</strong>
+          <span>Targeted preferences lead to quicker referrals.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTINUE ============ -->
+    <button class="btn-primary">Continue to Next Step <span class="arrow">→</span></button>
+    <p class="btn-note">You can update these preferences anytime from your profile.</p>
+
+  </div>
+</body>
+</html>
