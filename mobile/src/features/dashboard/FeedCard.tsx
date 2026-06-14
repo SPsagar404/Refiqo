@@ -17,7 +17,7 @@ interface FeedCardProps {
   onRequest: () => void;
 }
 
-const MAX_SKILLS = 4;
+const MAX_SKILLS = 3;
 
 /** A single referral opportunity card (matches the Reels-style feed design). */
 export function FeedCard({
@@ -73,7 +73,7 @@ export function FeedCard({
       <View style={styles.skillRow}>
         {item.skills.slice(0, MAX_SKILLS).map((s) => (
           <View key={s} style={styles.skillChip}>
-            <Text style={styles.skillText}>{s}</Text>
+            <Text style={styles.skillText} numberOfLines={1}>{s}</Text>
           </View>
         ))}
         {extraSkills > 0 && (
@@ -239,8 +239,9 @@ const styles = StyleSheet.create({
   },
   metaText: { ...typography.caption, color: colors.textSecondary, flexShrink: 1 },
   sectionLabel: { ...typography.bodyStrong, color: colors.text, marginTop: spacing.md, marginBottom: spacing.sm },
-  skillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  skillRow: { flexDirection: 'row', flexWrap: 'nowrap', gap: spacing.sm, alignItems: 'center' },
   skillChip: {
+    flexShrink: 1,
     paddingHorizontal: spacing.md,
     paddingVertical: 8,
     borderRadius: radii.pill,
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   skillText: { ...typography.small, color: colors.text },
-  skillMore: { borderColor: 'rgba(124, 92, 255, 0.5)' },
+  skillMore: { flexShrink: 0, borderColor: 'rgba(124, 92, 255, 0.5)' },
   skillMoreText: { color: colors.primaryLink, fontWeight: '600' },
   description: { ...typography.small, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 18 },
   referrerCard: {

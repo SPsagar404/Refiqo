@@ -198,13 +198,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bellBadgeText: { ...typography.caption, color: colors.white, fontSize: 10, fontWeight: '700' },
-  area: { flex: 1 },
+  // Reserve space for the floating bottom nav so feed cards (and the Request
+  // Referral button) render fully above it.
+  area: { flex: 1, marginBottom: 92 },
   page: {
     flexGrow: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xs,
-    paddingBottom: 100,
+    paddingVertical: spacing.sm,
   },
   hint: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: spacing.sm },
   hintText: { ...typography.caption, color: colors.textMuted },

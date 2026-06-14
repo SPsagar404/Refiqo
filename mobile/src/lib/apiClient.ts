@@ -2,20 +2,40 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'ax
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
+const API_PORT = 4000;
+const API_PREFIX = 'api/v1';
+
 /**
  * Resolve the API base URL per platform:
  * - Web: the browser runs on the same host as the dev machine, so derive the
- *   API host from the page itself. This works regardless of the machine's
- *   (frequently-changing) LAN IP — no app.json edit needed to run on web.
- * - Native (device/emulator): use the configured `extra.apiBaseUrl`
- *   (a LAN IP for a physical phone, or 10.0.2.2 for an Android emulator).
+ *   API host from the page itself.
+ * - Native (device/emulator): derive the host from Expo's own dev-server URI.
+ *   If the bundle was served over LAN (e.g. 192.168.1.4:8081), the backend on
+ *   the same machine (:4000) is reachable too — so we never hardcode the LAN
+ *   IP, which changes whenever the dev machine switches networks. Falls back to
+ *   `extra.apiBaseUrl`, then localhost.
  */
 function resolveBaseURL(): string {
   const configured = Constants.expoConfig?.extra?.apiBaseUrl as string | undefined;
+
   if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location?.hostname) {
-    return `${window.location.protocol}//${window.location.hostname}:4000/api/v1`;
+    return `${window.location.protocol}//${window.location.hostname}:${API_PORT}/${API_PREFIX}`;
   }
-  return configured ?? 'http://localhost:4000/api/v1';
+
+  // Host the Metro bundle was served from, e.g. "192.168.1.4:8081".
+  const hostUri =
+    Constants.expoConfig?.hostUri ??
+    (Constants as any).expoGoConfig?.debuggerHost ??
+    (Constants as any).manifest?.debuggerHost;
+  const host = hostUri?.split('://').pop()?.split(':')[0];
+
+  // Only trust a LAN IP. A tunnel host (ngrok/exp.direct domain) can't reach
+  // the backend, so fall back to the explicitly-configured URL there.
+  if (host && /^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
+    return `http://${host}:${API_PORT}/${API_PREFIX}`;
+  }
+
+  return configured ?? `http://localhost:${API_PORT}/${API_PREFIX}`;
 }
 
 const baseURL = resolveBaseURL();

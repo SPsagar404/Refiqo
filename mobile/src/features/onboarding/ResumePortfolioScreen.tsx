@@ -47,6 +47,7 @@ const RESUME_TIPS = [
 export function ResumePortfolioScreen({ navigation }: Props) {
   const [resume, setResume] = useState<{ id?: string; name: string; size: number } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | undefined>();
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [portfolioType, setPortfolioType] = useState<PortfolioType>(PortfolioType.WEBSITE);
   const [links, setLinks] = useState<{ type: PortfolioType; url: string }[]>([]);
@@ -87,13 +88,23 @@ export function ResumePortfolioScreen({ navigation }: Props) {
   });
 
   const pickResume = async () => {
-    const res = await DocumentPicker.getDocumentAsync({
-      type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-      copyToCacheDirectory: true,
-    });
+    setUploadError(undefined);
+    let res: DocumentPicker.DocumentPickerResult;
+    try {
+      res = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+        copyToCacheDirectory: true,
+      });
+    } catch {
+      setUploadError("Couldn't open the file picker. Please try again.");
+      return;
+    }
     if (res.canceled || !res.assets?.[0]) return;
     const file = res.assets[0];
-    if ((file.size ?? 0) > 5 * 1024 * 1024) return;
+    if ((file.size ?? 0) > 5 * 1024 * 1024) {
+      setUploadError('File is too large. Max size is 5MB.');
+      return;
+    }
     setUploading(true);
     try {
       const uploaded = await uploadFile({
@@ -104,8 +115,8 @@ export function ResumePortfolioScreen({ navigation }: Props) {
         sizeBytes: file.size ?? 0,
       });
       setResume({ id: uploaded.id, name: file.name, size: file.size ?? 0 });
-    } catch {
-      // surfaced by the upload toast in a fuller build; keep step optional in dev
+    } catch (e) {
+      setUploadError((e as Error).message || 'Upload failed. Please check your connection and try again.');
     } finally {
       setUploading(false);
     }
@@ -145,6 +156,13 @@ export function ResumePortfolioScreen({ navigation }: Props) {
             </>
           )}
         </Pressable>
+      )}
+
+      {!!uploadError && (
+        <View style={styles.uploadError}>
+          <Ionicons name="alert-circle" size={16} color={colors.danger} />
+          <Text style={styles.uploadErrorText}>{uploadError}</Text>
+        </View>
       )}
 
       <View style={styles.tipsBox}>
@@ -232,6 +250,16 @@ const styles = StyleSheet.create({
   },
   dropTitle: { ...typography.bodyStrong, color: colors.text, marginTop: spacing.md },
   dropHint: { ...typography.caption, color: colors.textMuted, marginTop: spacing.xs },
+  uploadError: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: colors.dangerMuted,
+  },
+  uploadErrorText: { ...typography.small, color: colors.danger, flex: 1 },
   resumeCard: { marginBottom: spacing.md },
   resumeRow: { flexDirection: 'row', alignItems: 'center' },
   resumeInfo: { flex: 1, marginLeft: spacing.md },

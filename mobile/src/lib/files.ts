@@ -2,6 +2,17 @@ import { api, unwrap } from './apiClient';
 
 export type FileKind = 'resume' | 'avatar' | 'attachment';
 
+/**
+ * The backend's local storage adapter builds signed URLs from PUBLIC_BASE_URL
+ * (often `localhost:4000`), which a phone/emulator can't reach. Rewrite the
+ * origin to the host we already use for the API so uploads work everywhere.
+ */
+function toReachableUrl(url: string): string {
+  const origin = (api.defaults.baseURL ?? '').replace(/\/api\/v1\/?.*$/, '');
+  if (!origin) return url;
+  return url.replace(/^https?:\/\/[^/]+/, origin);
+}
+
 interface SignedUpload {
   uploadUrl: string;
   fileKey: string;
@@ -41,11 +52,14 @@ export async function uploadFile(input: {
   );
 
   const blob = await (await fetch(input.uri)).blob();
-  await fetch(signed.uploadUrl, {
+  const uploadRes = await fetch(toReachableUrl(signed.uploadUrl), {
     method: signed.method,
     headers: signed.headers ?? { 'Content-Type': input.mimeType },
     body: blob,
   });
+  if (!uploadRes.ok) {
+    throw new Error(`Upload failed (${uploadRes.status}). Please try again.`);
+  }
 
   const confirmed = unwrap<{ id?: string }>(
     (

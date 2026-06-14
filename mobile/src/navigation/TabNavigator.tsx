@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     right: 16,
-    bottom: 16,
+    bottom: 4,
     height: 70,
     borderRadius: 30,
     backgroundColor: 'rgba(28,33,46,0.92)',
